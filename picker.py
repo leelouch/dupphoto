@@ -5,7 +5,7 @@
 # purposes, all without asking permission. For more information, see LICENSE.md or 
 # https://creativecommons.org/publicdomain/zero/1.0/
 
-import re, os, shutil
+import re, os, pdb, shutil
 import curses
 from curses import wrapper
 curses.wrapper = wrapper
@@ -101,6 +101,9 @@ class Picker:
 				self.byIdx.pop(x)
 		self.refresh()
 
+	def drawLine(self, h, w, msg, dec=curses.A_NORMAL):
+		self.win.addstr(h, w, msg[0:min(len(msg), self.window_width-w-1)], dec)
+
 	def redraw(self):
 		self.scrh, self.scrw = self.stdscr.getmaxyx()
 		self.window_height, self.window_width = self.scrh-2, self.scrw-4
@@ -118,9 +121,7 @@ class Picker:
 		)
 		self.win.refresh()
 
-		self.win.addstr(
-			self.window_height-1, 5, " " + self.footer + " "
-		)
+		self.drawLine(self.window_height-1, 5," " + self.footer + " ")
 
 		position = 0
 		range = self.all_options[self.offset:self.offset+self.winDepth]
@@ -128,12 +129,15 @@ class Picker:
 			if self.showMetaData and option["metadata"]:
 				s = "%-100s %s" %(option["label"][0], option["metadata"].str(inline=True))
 			else:
-				s = "".join([ "%-80s" %x for x in option["label"] ])
+				s = "".join([ "%-80s" %x for x in option["label"][option["offset"]:] ])
+
 			decoration = curses.A_STANDOUT if self.cursor == position else curses.A_NORMAL
 			if option["selected"] == True:
-				self.win.addstr(position + 2, self.labelOfset, "%s %s" %(self.c_selected, s), curses.A_BOLD | decoration)
+				self.drawLine(position + 2, self.labelOfset, "%s %s" %(self.c_selected, s), curses.A_BOLD | decoration)
+				#self.win.addstr(position + 2, self.labelOfset, "%s %s" %(self.c_selected, s), curses.A_BOLD | decoration)
 			else:
-				self.win.addstr(position + 2, self.labelOfset, "%s %s" %(self.c_empty   , s), decoration)
+				self.drawLine(position + 2, self.labelOfset, "%s %s" %(self.c_empty   , s), decoration)
+				#self.win.addstr(position + 2, self.labelOfset, "%s %s" %(self.c_empty   , s), decoration)
 
 			position = position + 1
 
@@ -251,7 +255,7 @@ class Picker:
 		while 1:
 			self.redraw()
 			c = stdscr.getch()
-			self.log("key=", c, chr(c))
+			self.log("key=", c, chr(c) if c >=0 else c)
 
 			if c == ord('q') or c == ord('Q') or c == 27:
 				if self.confirmWindow("quit  (y/n) ? "):
@@ -334,6 +338,13 @@ class Picker:
 							self.workWin.clear()
 				self.stdscr.clear()
 				self.stdscr.refresh()
+			elif c == curses.KEY_RIGHT:
+				option = self.all_options[self.offset + self.cursor]
+				nFile  = len(option["label"])
+				option["offset"] = min(option["offset"] + 1, nFile-1)
+			elif c == curses.KEY_LEFT:
+				option = self.all_options[self.offset + self.cursor]
+				option["offset"] = max(option["offset"] - 1, 0)
 			elif c == curses.KEY_UP:
 				self.cursor = self.cursor - 1
 			elif c == curses.KEY_DOWN:
@@ -485,6 +496,7 @@ class Picker:
 			,	"selected": False
 			,	"idx"     : idx
 			,	"metadata": MediaInfo()
+			,	"offset"  : 0
 			}
 			self.byIdx[idx] = d
 			self.all_options.append(d)
