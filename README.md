@@ -8,3 +8,6 @@ dupphotomanager.py  : load database and manage dup photos
 picker.py           : manage terminal
 
 </pre>
+
+required: <BR>
+http://github.com/smarnach/pyexiftool
