@@ -10,4 +10,4 @@ picker.py           : manage terminal
 </pre>
 
 required: <BR>
-http://www.sno.phy.queensu.ca/~phil/exiftool/
+http://github.com/smarnach/pyexiftool
