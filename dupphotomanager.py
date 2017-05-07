@@ -38,7 +38,7 @@ class DupManager(object):
 					break
 		for sum in l:
 			del(d[sum])
-		#pickle.dump(d, open( self.db, "wb" ) )
+		pickle.dump(d, open( self.db, "wb" ) )
 
 	def main(self, stdscr):
 		d=pickle.load(open( self.db, "rb" ) )
