@@ -79,11 +79,12 @@ class DupManager(object):
 			for y in x:
 				if y in opts:
 					x.remove(y)
-				if len(x)<=1:
+				if len(x)==0:
 					l.append(sum)
 					break
 		for sum in l:
 			del(d[sum])
+
 		pickle.dump(d, open( self.db, "wb" ) )
 
 	def main(self, stdscr):
@@ -106,7 +107,6 @@ class DupManager(object):
 		while 1:
 			pikr.run()
 			removed = pikr.getRemoved()
-
 			if removed:
 				self.updateDict(d, removed)
 

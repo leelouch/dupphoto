@@ -322,7 +322,7 @@ class Picker:
 				self.log("select idx")
 				self.footer = swipeFooter
 			elif c == ord('k'):
-				self.action(classifyImg, removeFromList=True, testOnly=True)
+				self.action(classifyImg, removeFromList=True)
 				self.log("removedList=", self.removedList)
 			elif c == ord('s'):
 				self.footer = showFooter
