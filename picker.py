@@ -11,14 +11,12 @@ from curses import wrapper
 curses.wrapper = wrapper
 from curses.textpad import Textbox, rectangle
 from classifyImg import classifyImg
-
+from config import *
 import exiftool
 
-backupDir   = "/c/backup/torrentfiles/photos"
-
-mainFooter  = "Space = toggle, Enter = delete, A/N = select all/None, f = regex filter, c = change order, s = show options, t = tag photo, Esc/q = cancel/exit"
+mainFooter  = "Space = toggle, Enter = delete, A/N = select all/None, f or / = regex filter, c = change order, s = show options, t = tag photo, k = classify, Esc/q = cancel/exit"
 showFooter  = "x/X: show selected, a: show all"
-swipeFooter = "0-9: put file at 0-9 position at first position"
+swipeFooter = "0-9: put file at 0-9 position at first position, a: for auto"
 
 class MediaInfo(object):
 	def __init__(self, **args):
@@ -262,7 +260,13 @@ class Picker:
 					self.aborted = True
 					break
 			if self.selectIdx:
-				if chr(c) in [ ('%d' %x) for x in range(9) ]:
+				if c == ord('a'):
+					for x in self.all_options:
+						if self.selectedOrd in x['label']:
+							idx = x['label'].index(self.selectedOrd)
+							if idx:
+								self.swipeIdx(idx, x['label'])
+				elif chr(c) in [ ('%d' %x) for x in range(9) ]:
 					for x in self.all_options:
 						if x["selected"]:
 							self.swipeIdx(int(chr(c)), x['label'])
@@ -318,11 +322,12 @@ class Picker:
 				for x in self.all_options:
 					x["selected"] = False
 			elif c == ord('c'):
-				self.selectIdx = True
+				self.selectIdx   = True
+				self.selectedOrd = self.all_options[self.selected]["label"][0]
 				self.log("select idx")
 				self.footer = swipeFooter
 			elif c == ord('k'):
-				self.action(classifyImg, removeFromList=True)
+				self.action(classifyImg, removeFromList=True, msg="classify %s ...")
 				self.log("removedList=", self.removedList)
 			elif c == ord('s'):
 				self.footer = showFooter
@@ -376,7 +381,7 @@ class Picker:
 				d["selected"] = not d["selected"]
 			elif c == 10:
 				if self.confirmWindow("delete (y/n) ? "):
-					self.action(self.remove, removeFromList=True)
+					self.action(self.remove, removeFromList=True, msg="removing %s ...")
 				self.stdscr.clear()
 				self.stdscr.refresh()
 
@@ -428,7 +433,7 @@ class Picker:
 	def remove(self, filename):
 		dname = "%s/%s" %(backupDir, os.path.dirname(filename))
 		if os.path.exists(filename):
-			print ("mv %s %s" %(filename, dname))
+			#print ("mv %s %s" %(filename, dname))
 			if not os.path.exists(dname):
 				os.makedirs(dname)
 			shutil.move(filename, dname)
@@ -439,10 +444,11 @@ class Picker:
 		self.showWorkMsgRectangle()
 		selected = False
 		removeFromList=keywords.pop("removeFromList", False)
+		msg           =keywords.pop("msg", "%s %%s ..." %func)
 		for i, option in enumerate(self.all_options):
 			if option["selected"]:
 				selected = True
-				self.showMsg("classify %s ..." %option['label'][0], wait=False)
+				self.showMsg(msg %option['label'][0], wait=False)
 				self.log(func(option['label'][0], **keywords))
 				self.workWin.clear()
 		if selected and removeFromList:
