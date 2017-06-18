@@ -3,8 +3,7 @@ import datetime
 import struct
 import sys, os
 import re, shutil
-
-photoBaseDir="/media/photo"
+from config import *
 
 ATOM_HEADER_SIZE = 8
 # difference between Unix epoch and QuickTime epoch, in seconds
@@ -40,7 +39,7 @@ def movTime(filename):
 				return timeFromFileName(filename)
 			atom_size = struct.unpack(">I", atom_header[0:4])[0]
 			f.seek(atom_size - 8, 1)
-	
+
 	# found 'moov', look for 'mvhd' and timestamps
 	atom_header = f.read(ATOM_HEADER_SIZE)
 	if atom_header[4:8].decode('ascii') == 'cmov':
