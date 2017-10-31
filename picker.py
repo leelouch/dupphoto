@@ -262,8 +262,9 @@ class Picker:
 			if self.selectIdx:
 				if c == ord('a'):
 					for x in self.all_options:
-						if self.selectedOrd in x['label']:
-							idx = x['label'].index(self.selectedOrd)
+						sl = [ os.path.dirname(n) for n in x['label'] ]
+						if self.selectedOrd in sl:
+							idx = sl.index(self.selectedOrd)
 							if idx:
 								self.swipeIdx(idx, x['label'])
 				elif chr(c) in [ ('%d' %x) for x in range(9) ]:
@@ -323,8 +324,8 @@ class Picker:
 					x["selected"] = False
 			elif c == ord('c'):
 				self.selectIdx   = True
-				self.selectedOrd = self.all_options[self.selected]["label"][0]
-				self.log("select idx")
+				self.selectedOrd = os.path.dirname(self.all_options[self.selected]["label"][0])
+				self.log("select idx %s" %self.selectedOrd)
 				self.footer = swipeFooter
 			elif c == ord('k'):
 				self.action(classifyImg, removeFromList=True, msg="classify %s ...")
