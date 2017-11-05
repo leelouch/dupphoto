@@ -9,7 +9,7 @@ ATOM_HEADER_SIZE = 8
 # difference between Unix epoch and QuickTime epoch, in seconds
 EPOCH_ADJUSTER = 2082844800
 
-datePatStr = "(?P<y>[0-9]{4}):(?P<m>[0-9]{2}):(?P<d>[0-9]{2}) (?P<h>[0-9]{2}):(?P<mn>[0-9]{2}):(?P<s>[0-9]{2})"
+datePatStr = "(?P<y>[0-9]{4})[-_:](?P<m>[0-9]{2})[-_:](?P<d>[0-9]{2})[-_: ](?P<h>[0-9]{2})[-_:](?P<mn>[0-9]{2})[-_:](?P<s>[0-9]{2})"
 datePat = re.compile(datePatStr)
 filePat = re.compile("(.*/|^)IMG_(?P<y>[0-9]{4})(?P<m>[0-9]{2})(?P<d>[0-9]{2})_(?P<h>[0-9]{2})(?P<mn>[0-9]{2})(?P<s>[0-9]{2})\..*")
 exifPat = re.compile("Create Date[^:]+: (?P<date>%s).*" %datePatStr)

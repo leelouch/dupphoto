@@ -29,7 +29,7 @@ class DupManager(object):
 		parser.add_argument('-all' , action='store_true' , help='load all db, do not filter dup only')
 		parser.add_argument('-log' , action='store_true' , help='verbose to log file')
 		parser.add_argument('-test', action='store_true', help='for test only')
-		parser.add_argument('--dir', type=str, nargs="?" , help='create a db from directory', default="")
+		parser.add_argument('--dir' , type=str, nargs="?" , help='create a db from directory', default="")
 		parser.add_argument('db'   , type=str, nargs=1   , help='db filename')
 
 		argList = argv[1:]
@@ -44,8 +44,13 @@ class DupManager(object):
 		self.dir = args.dir
 
 		self.dbDict = {}
+
+		if os.path.exists(self.db):
+			self.loadDb(self.db)
+
 		if self.dir:
 			self.fillDbFromDir()
+
 
 	def fillDbFromDir(self):
 		"""
@@ -63,13 +68,14 @@ class DupManager(object):
 		sum = computeSum(f)
 		if sum not in self.dbDict:
 			self.dbDict[sum]=[]
-		self.dbDict[sum].append(f)
+		if f not in self.dbDict[sum]:
+			self.dbDict[sum].append(f)
 		print("done")
 
 	def saveDb(self):
 		pickle.dump(self.dbDict, open(self.db, "wb"))
 
-	def loadDb(self):
+	def loadDb(self, db=None):
 		self.dbDict = pickle.load(open(self.db, "rb"))
 		return self.dbDict
 
@@ -88,7 +94,7 @@ class DupManager(object):
 		pickle.dump(d, open( self.db, "wb" ) )
 
 	def main(self, stdscr):
-		d=self.loadDb()
+		d=self.dbDict
 
 		if self.all:
 			l = [ x for x in filter(lambda x: x!=0, d) ]
