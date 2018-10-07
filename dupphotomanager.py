@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 
 import curses
 import pickle
@@ -20,6 +20,8 @@ def getExt(f):
 
 def isMedia(f):
 	ext = getExt(f)
+	if "/@eaDir/" in f:
+		return False
 	return ext and ext.lower() in [ "jpg", "png", "jpeg", "mov", "mp4", "mov" ]
 
 class DupManager(object):
